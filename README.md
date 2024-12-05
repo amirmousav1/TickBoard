@@ -38,9 +38,9 @@ Follow the steps below to get a local copy of the project up and running.
 1. Clone the repository:
 
 ```bash
-   git clone https://github.com/your-username/react-todo-app.git
-   cd react-todo-app
-   ```
+git clone https://github.com/your-username/react-todo-app.git
+cd react-todo-app
+```
 
 2. Install dependencies:
 
