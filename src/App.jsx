@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 const initialTasks = [
@@ -8,15 +8,24 @@ const initialTasks = [
 const priorityOrder = { High: 1, Medium: 2, Low: 3 };
 
 function App() {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState(() => {
+    return JSON.parse(localStorage.getItem("tasks")) || initialTasks;
+  });
   const [taskName, setTaskName] = useState("");
   const [priority, setPriority] = useState("");
   const [isSortByPriority, setIsSortByPriority] = useState(true);
   const todoTasks = tasks.filter((task) => task.type === "todo");
   const doneTasks = tasks.filter((task) => task.type === "done");
 
+  useEffect(
+    function () {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    },
+    [tasks]
+  );
+
   const sortedTasks = isSortByPriority
-    ? todoTasks.sort((a, b) => {
+    ? [...todoTasks].sort((a, b) => {
         return priorityOrder[a.priority] - priorityOrder[b.priority];
       })
     : todoTasks;
@@ -46,6 +55,11 @@ function App() {
       cur.map((task) => (task.id === id ? { ...task, type: "done" } : task))
     );
     toast.success("Task marked as done!");
+  }
+
+  function handleClearDoneTasks() {
+    setTasks((cur) => cur.filter((task) => task.type !== "done"));
+    toast.success("All done tasks cleared!");
   }
 
   return (
@@ -99,7 +113,7 @@ function App() {
                 </label>
                 <input
                   id="sortbypriority"
-                  className="w-5 h-5 text-primary bg-primary"
+                  className="w-5 h-5 accent-[#15101C]"
                   type="checkbox"
                   checked={isSortByPriority}
                   onChange={() => setIsSortByPriority((cur) => !cur)}
@@ -159,7 +173,17 @@ function App() {
             ))}
           </div>
           <div className="mt-10">
-            <h4 className="text-white">Done - {doneTasks.length}</h4>
+            <div className="flex justify-between items-center">
+              <h4 className="text-white">Done - {doneTasks.length}</h4>
+              {doneTasks.length !== 0 && (
+                <button
+                  onClick={handleClearDoneTasks}
+                  className="bg-green-700 text-white rounded-[10px] py-1 px-2 text-sm"
+                >
+                  Clear Done Tasks
+                </button>
+              )}
+            </div>
             {doneTasks.map((task) => (
               <div
                 key={task.id}
